@@ -48,6 +48,36 @@ app.post("/create", async (req, res) => {
   }
 });
 
+app.patch("/update/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { productName, quantity, price } = req.body;
+    const updatedQuery = {
+      $set: {
+        productName: productName,
+        quantity: quantity,
+        price: price,
+      },
+    };
+    const product = await ProductModel.findByIdAndUpdate(
+      { _id: id },
+      updatedQuery,
+      { new: true }
+    ).lean();
+    if (!product)
+      return res.status(404).json({
+        message: "Product not found",
+      });
+    return res.status(200).json({
+      message: "Updated successfully",
+      data: product,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 app.delete("/delete/:id", async (req, res) => {
   try {
     const { id } = req.params;
